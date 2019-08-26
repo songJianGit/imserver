@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>搜索</title>
+    <link rel="stylesheet" th:href="@{/iim/css/newfriend.css}">
+</head>
+<body>
+<div id="windows-box-newf">
+    <div class="main-box">
+        <div class="search-box-f"><input type="text" placeholder="请输入手机号搜索" id="searchInput"/>
+            <button type="button" id="searchBtn">搜索</button>
+        </div>
+        <div class="search-data-f">
+            <table border="1">
+                <tr>
+                    <th>头像</th>
+                    <th>用户名</th>
+                    <th>手机号</th>
+                    <th>操作</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript" th:src="@{/jQuery-lib/1.12.1/jquery.min.js}"></script>
+<script th:inline="javascript">
+    $(function () {
+        searchBtn();
+    });
+
+    // 搜索
+    function searchBtn() {
+        $("#searchBtn").click(function () {
+            var searchInfo = $("#searchInput").val();
+            if (searchInfo == undefined || searchInfo == '') {
+                $(".search-data-f table").html('');
+                $(".search-data-f table").append('<tr><td>未搜索到任何信息</td></tr>');
+                return false;
+            }
+            $.ajax({
+                url: '/listuserbysearch.json',
+                cache: false,
+                data: {
+                    'searchInfo': searchInfo,
+                    'userid': [[${useridA}]]
+                },
+                success: function (data) {
+                    $(".search-data-f table").html('');
+                    if (data.result == 1) {
+                        var htm = '<tr><th>头像</th><th>用户名</th><th>手机号</th><th>操作</th></tr>';
+                        htm += '<tr class="data-item">';
+                        for (var i = 0; i < data.data.length; i++) {
+                            var item = data.data[i];
+                            htm += '<td><img width="80px" height="80px" src="' + item.avatar + '"/></td>';
+                            htm += '<td>' + item.nick + '</td>';
+                            htm += '<td>' + item.cellnumber + '</td>';
+                            htm += '<td><button type="button" onclick="friendRequest(\'' + item.id + '\')">加为好友</button></td>';
+                            htm += '</tr>';
+                        }
+                        $(".search-data-f table").append(htm);
+                    } else {
+                        $(".search-data-f table").append('<tr><td>未搜索到任何信息</td></tr>');
+                    }
+                }
+            });
+        });
+    };
+
+    // 好友请求
+    function friendRequest(useridB) {
+        var msg = prompt("请输入验证信息", "我是" + [[${username}]]);
+        msg = msg.trim();
+        if (msg == null && msg != '') {
+            return false;
+        }
+        $.ajax({
+            url: '/friendrequest.do',
+            cache: false,
+            data: {
+                'useridA': [[${useridA}]],
+                'useridB': useridB,
+                'msg': msg
+            },
+            success: function (data) {
+                if (data.result == 1) {
+                    alert("请求已发出，等待对方同意");
+                } else {
+                    alert(data.msg);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

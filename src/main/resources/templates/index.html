@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <!--<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">-->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>主页</title>
+    <link rel="stylesheet" th:href="@{/iim/css/index.css}">
+    <link rel="stylesheet" th:href="@{/iim/jQuery-emoji-master/lib/css/jquery.mCustomScrollbar.min.css}"/>
+    <link rel="stylesheet" th:href="@{/iim/jQuery-emoji-master/dist/css/jquery.emoji.css}"/>
+</head>
+<body>
+<div id="windows-box">
+    <div class="main-box">
+        <div class="main-box-left">
+            <div class="left-hang-box">
+                <!--切换框begin-->
+                <div class="switch-box">
+                    <button class="left-menu-btn" data-btn="lately-box-btn" data-box="lately-box" type="button">消息[<span id="info-num">0</span>]</button>
+                    <button class="left-menu-btn" data-btn="people-box-btn" data-box="people-box" type="button">好友</button>
+                    <button class="left-menu-btn" data-btn="group-box-btn" data-box="group-box" type="button">群组</button>
+                </div>
+                <!--切换框end-->
+            </div>
+            <!--左边begin-->
+            <div class="left-box">
+                <div class="search-box">
+                    <input type="hidden" placeholder="搜索"/> <!--框里面的值一旦变化就进行搜索-->
+                    <!--这里得搜索功能暂时先放着，放个图片啥的填充一哈，懒得做-->
+                </div>
+                <!--最近联系列表begin-->
+                <div class="lately-box">
+                    <div id="dioPanel">
+                        <!--&nbsp;在线成员(0/0)-->
+                    </div>
+                </div>
+                <!--最近联系列表end-->
+                <!--用户列表begin-->
+                <div class="people-box">
+                    <div id="onlineUser">
+                        <button type='button' onclick='addfriendbox()'>好友添加</button><button type='button' onclick='checkfriendbox()'>好友验证</button>
+                    </div>
+                </div>
+                <!--用户列表end-->
+                <!--组列表begin-->
+                <div class="group-box">
+                    <div id="onlinePanel">
+                        <!--&nbsp;在线成员(0/0)-->
+                    </div>
+                </div>
+                <!--组列表end-->
+            </div>
+            <!--左边end-->
+            <!--右边begin-->
+            <div class="right-box">
+                <!--上半部分的 用户或组信息显示begin-->
+                <div class="people-info-box">
+                    <p id="gpinfo"></p>
+                </div>
+                <!--上半部分的 用户或组信息显示end-->
+                <!--下半部分的 对话信息begin-->
+                <div id="info-boxsss">
+                    <!--<div class="info-box dialogueO">-->
+                    <!--&lt;!&ndash;消息对话显示&#45;&#45;begin&ndash;&gt;-->
+                    <!--<div class="info-show-box"></div>-->
+                    <!--&lt;!&ndash;消息对话显示&#45;&#45;end&ndash;&gt;-->
+                    <!--&lt;!&ndash;消息编辑部分&#45;&#45;begin&ndash;&gt;-->
+                    <!--<div class="info-edit-box">-->
+                    <!--<div class="tool-menu">-->
+
+                    <!--</div>-->
+                    <!--<div class="edit-box" contenteditable="true" style="width: 100px;height: 50px"></div>-->
+                    <!--<button type="button">发送</button>-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash;消息编辑部分&#45;&#45;end&ndash;&gt;-->
+                    <!--</div>-->
+                </div>
+                <!--下半部分的 对话信息end-->
+            </div>
+            <!--右边end-->
+        </div>
+        <div class="main-box-right">
+            <!--群组的人员begin-->
+            <div id="group-user">
+
+            </div>
+            <!--群组的人员end-->
+        </div>
+    </div>
+</div>
+<div style="margin: 10px auto;width: 550px;">
+    <label>用户名:</label>
+    <input id="username" value="admin1"/>
+    <label style="width: 60px;">密码:</label>
+    <input id="password" value="123"/>
+    <input onclick="javascript:connect();" type="button" value="登录"/>
+    <input onclick="javascript:disConnect();" type="button" value="退出"/>
+</div>
+<!--猥琐发育的图片上传装置-->
+<div style="display: none;">
+    <form id="uploadimgFrom" action="#" method="post" enctype="multipart/form-data">
+        <input type="file" name="files" id="files" accept="image/jpeg,image/png"/>
+        <input type="button" id="uploadimgBtn"/>
+    </form>
+</div>
+<script   th:inline="javascript" th:src="@{/jQuery-lib/1.12.1/jquery.min.js}"></script>
+<script   th:inline="javascript" th:src="@{/iim/js/md5.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/js/date.js}"></script>
+<script th:inline="javascript" th:src="@{/layer/layer.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/js/tools.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/js/socket.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/js/index.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/jQuery-emoji-master/lib/script/jquery.mousewheel-3.0.6.min.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/jQuery-emoji-master/lib/script/jquery.mCustomScrollbar.min.js}"></script>
+<script th:inline="javascript" th:src="@{/iim/jQuery-emoji-master/dist/js/jquery.emoji.min.js}"></script>
+</body>
+</html>

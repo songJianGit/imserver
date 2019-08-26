@@ -1,0 +1,20 @@
+#windows-box-newf .main-box {
+    /*border: 1px solid red;*/
+    /*width: 650px;*/
+    /*height: 450px;*/
+    margin: 0px auto;
+    overflow: hidden;
+}
+
+#windows-box-newf .search-data-v {
+    /*border: 1px solid red;*/
+    width: 450px;
+    height: 100%;
+    margin: 0px auto;
+}
+
+#windows-box-newf table {
+    width: 450px;
+    text-align: center;
+    margin: 0px auto;
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>搜索</title>
+    <link rel="stylesheet" th:href="@{/iim/css/newfriend.css}">
+</head>
+<body>
+<div id="windows-box-newf">
+    <div class="main-box">
+        <div class="search-data-v">
+            <table border="1">
+                <tr>
+                    <th>头像</th>
+                    <th>用户名</th>
+                    <th>验证消息</th>
+                    <th>操作</th>
+                </tr>
+                <tr th:each="item:${list}">
+                    <td><img width="80px" height="80px" th:src="${item.avatar}"/>
+                    </td>
+                    <td>[[${item.username}]]</td>
+                    <td>[[${item.msg}]]</td>
+                    <td>
+                        <button type="button" class="successBtn" th:data-id="${item.id}">同意</button>
+                        <button type="button" class="refuseBtn" th:data-id="${item.id}">拒绝</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript" th:src="@{/jQuery-lib/1.12.1/jquery.min.js}"></script>
+<script th:inline="javascript">
+    $(function () {
+        $(".successBtn").click(function () {
+            request_upnewfriend($(this).data("id"), 1);
+            $(this).parent().parent().remove();
+        });
+        $(".refuseBtn").click(function () {
+            request_upnewfriend($(this).data("id"), 0);
+            $(this).parent().parent().remove();
+        });
+    });
+
+    function request_upnewfriend(id, flag) {
+        $.ajax({
+            url: '/upnewfriend.do',
+            cache: false,
+            data: {
+                'id': id,
+                'flag': flag
+            },
+            success: function (data) {
+                alert(data.msg);
+            }
+        });
+    }
+</script>
+</body>
+</html>
