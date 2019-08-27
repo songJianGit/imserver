@@ -3,8 +3,9 @@ var userId;
 var userName;
 var curUser;
 var curUserDio;
+var curUserGroupOrFriend = [];// 用户的群组或好友信息
 // 服务器配置
-var serverIp = '10.10.20.3';// 服务器ip
+var serverIp = '127.0.0.1';// 服务器ip
 var serverPort = '8888';// 服务器端口
 // 全局信息记录
 var shwogpid;// 当前显示的群组用户信息box的id,在点击群组列的时候会进行记录，点击用户列的时候清空
@@ -18,7 +19,7 @@ function connect() {
         return;
     }
     var indexMask = layer.load(1, {
-        shade: [0.1,'#fff'] //0.1透明度的白色背景
+        shade: [0.1, '#fff'] //0.1透明度的白色背景
     });
     var ip = serverIp;
     var port = serverPort;
@@ -126,23 +127,63 @@ function COMMAND_DEL_GROUP_RESP(dataObj, data) {
     $("#gpinfo").html("");// 删除头标
 }
 
+/**
+ *
+ * @param obj
+ * @param type 1-好友 2-群组 3-对话
+ */
+function putCurUserGroupOrFriend(obj, type) {
+    var bb = true;
+    var id = "";
+    var name = "";
+    var avatar = "";
+    if (type == 1) {
+        for (var i = 0; i < curUserGroupOrFriend.length; i++) {
+            var item = curUserGroupOrFriend[i];
+            if (item.id == obj.id && item.type == type) {
+                bb = false;
+            }
+        }
+        id = obj.id;
+        name = obj.nick;
+        avatar = obj.avatar;
+    } else if (type == 2) {
+        for (var i = 0; i < curUserGroupOrFriend.length; i++) {
+            var item = curUserGroupOrFriend[i];
+            if (item.id == obj.group_id && item.type == type) {
+                bb = false;
+            }
+        }
+        id = obj.group_id;
+        name = obj.name;
+        avatar = obj.avatar;
+    } else if (type == 3) {
+        for (var i = 0; i < curUserGroupOrFriend.length; i++) {
+            var item = curUserGroupOrFriend[i];
+            if (item.id == obj.objectid && item.type == type) {
+                bb = false;
+            }
+        }
+        id = obj.objectid;
+        name = obj.name;
+        avatar = obj.avatar;
+    }
+    if (bb) {
+        var iii = {
+            "id": id,
+            "name": name,
+            "type": type,
+            "avatar": avatar
+        };
+        curUserGroupOrFriend.push(iii);
+    }
+    return curUserGroupOrFriend;
+}
+
 // 新建对话响应
 function COMMAND_NEW_DIALOGUE_RESP(dataObj, data) {
     dataObj = dataObj.data;
-    var b = true;
-    if (curUserDio == undefined) {
-        curUserDio = [];
-    }
-    for (var i = 0; i < curUserDio.length; i++) {
-        var dio = curUserDio[i];
-        if (dio.objectid == dataObj.objectid && dio.type == dataObj.type) {
-            b = false;
-            break;
-        }
-    }
-    if (b) {
-        curUserDio.push(dataObj);
-    }
+    putCurUserGroupOrFriend(dataObj, 3);
     // 在客户端的最近联系界面添加对话信息
     if (dataObj.type == 1) {
         var htm = cOneP(dataObj.objectid, dataObj.name, dataObj.avatar, dataObj.type, 1);
@@ -157,6 +198,7 @@ function COMMAND_NEW_DIALOGUE_RESP(dataObj, data) {
 function COMMAND_LOGIN_RESP(dataObj, data) {
     userId = dataObj.data.id;
     userName = dataObj.data.nick;
+    $("#username-left-show").html(userName);
     if (10007 == dataObj.code) {//登陆成功;
         console.info('连接成功...');
         var userCmd = "{\"cmd\":17,\"type\":\"2\",\"userid\":\"" + userId + "\"}";
@@ -218,6 +260,7 @@ function COMMAND_GET_USER_RESP(data) {
     }
     var user = data.data;
     curUser = user;
+    putCurUserGroupOrFriendByCurUser(curUser);
     initOnlineUsers(curUserOld);// 好友信息
     initOnlineGroup(curUserOld);// 群组信息
 }
@@ -230,31 +273,19 @@ function COMMAND_CHAT_RESP(data) {
     var type = 1;
     var from = chatObj.from;
     var obid = from;
-    var dio;
     if (chatType == 1) {
         type = 2;
         obid = chatObj.group_id;
-        dio = getU_GById_Type(type, obid);
     } else if (chatType == 2) {
         type = 1;
-        dio = getU_GById_Type(type, obid);
     }
     var createTime = new Date(chatObj.createTime).Format(dateFFF);
-    if (from == userId)
-        return;
+    if (from == userId) return;
     var content = chatObj.content;
-    var user = getOnlineUserById(from);
     openDiologue(type, obid, 1, 0);
     var winbox = $("#" + obid + type + " .info-show-box");
-    if (type == 1) {
-        if (user == undefined) {
-            showtowin_result(dio.name, createTime, content, winbox);
-        } else {
-            showtowin_result(user.nick, createTime, content, winbox);
-        }
-    } else {
-        showtowin_result(from, createTime, content, winbox);
-    }
+    var iii = getUserOrGroup(obid, type);
+    showtowin_result(iii.name, createTime, content, winbox);
 }
 
 //处理用户同步+持久化消息
@@ -305,17 +336,17 @@ function OTHER(data) {
     console.info(data);
 }
 
-function getOnlineUserById(id) {
+// 将用户的好友，群组等信息组合成一个vo，方便后续业务使用
+function putCurUserGroupOrFriendByCurUser(curUser) {
     var groups = curUser.groups;
     if (groups != undefined) {
         for (var g = 0; g < groups.length; g++) {
             var group = groups[g];
+            putCurUserGroupOrFriend(group, 2);
             var users = group.users;
             for (var u = 0; u < users.length; u++) {
                 var user = users[u];
-                if (user.id == id) {
-                    return user;
-                }
+                putCurUserGroupOrFriend(user, 1);
             }
         }
     }
@@ -326,36 +357,20 @@ function getOnlineUserById(id) {
             var users = group.users;
             for (var u = 0; u < users.length; u++) {
                 var user = users[u];
-                if (user.id == id) {
-                    return user;
-                }
+                putCurUserGroupOrFriend(user, 1);
             }
         }
     }
 }
 
-function getGroupById(id) {
-    var groups = curUser.groups;
-    if (groups == undefined) {
-        return undefined;
-    }
-    for (var g = 0; g < groups.length; g++) {
-        var group = groups[g];
-        if (group.group_id == id) {
-            return group;
+function getUserOrGroup(id, type) {
+    for (var i = 0; i < curUserGroupOrFriend.length; i++) {
+        var item = curUserGroupOrFriend[i];
+        if (item.id == id && item.type == type) {
+            return item;
         }
     }
-}
-
-function getU_GById_Type(type, id) {
-    if (curUserDio != undefined) {
-        for (var i = 0; i < curUserDio.length; i++) {
-            var dio = curUserDio[i];
-            if (dio.objectid == id && dio.type == type) {
-                return dio;
-            }
-        }
-    }
+    return "";
 }
 
 function initOnlineUsers(curUserOld) {
@@ -670,39 +685,21 @@ function sendGroup(groupid) {
 
 // 当列表中没有这个组的时候，就无法发信息到这个组
 function fgx(groupid) {
-    var b = false;
-    var groups = curUser.groups;
-    if (groups != undefined) {
-        for (var g = 0; g < groups.length; g++) {
-            var group = groups[g];
-            var id = group.group_id;
-            if (id == groupid) {
-                b = true;
-                break;
-            }
-        }
-    }
-    return b;
+    return fuxxx(groupid, 2);
 }
 
 // 当列表中没有这个用户的时候，就无法发信息到这个组
 function fux(userid) {
-    var b = false;
-    var friends = curUser.friends;
-    if (friends != undefined) {
-        for (var g = 0; g < friends.length; g++) {
-            var group = friends[g];
-            var users = group.users;
-            for (var u = 0; u < users.length; u++) {
-                var user = users[u];
-                if (user.id == userid) {
-                    b = true;
-                    break;
-                }
-            }
-        }
+    return fuxxx(userid, 1);
+}
+
+function fuxxx(id, type) {
+    var iii = getUserOrGroup(groupid, type);
+    if (iii != undefined) {
+        return true;
+    } else {
+        return false;
     }
-    return b;
 }
 
 // 将用户发送的消息直接打印到窗口
@@ -718,10 +715,10 @@ function showtowin(uname, uid, time, content, winbox, patternT) {
     htm += "</p>";
     if (patternT == undefined || patternT == 1) {
         winbox.append(htm);
+        scrollToBottom();
     } else {
         winbox.prepend(htm);
     }
-    scrollToBottom();
 }
 
 // 将用户接受的消息直接打印到窗口
@@ -738,10 +735,10 @@ function showtowin_result(name, createTime, content, winbox, patternT) {
     htm += "</p>";
     if (patternT == undefined || patternT == 1) {
         winbox.append(htm);
+        scrollToBottom();
     } else {
         winbox.prepend(htm);
     }
-    scrollToBottom();
 }
 
 // 初始化右侧对话面板
@@ -753,6 +750,8 @@ function init_panel() {
 
 // 打开会话窗口(没有则新建)  type 1-用户  2-群组
 function openDiologue(type, obid, diotype, opentype) {
+    // todo 每次open聊天框时，发起一个请求，获取本对象的最新 名字和头像
+
     if (!(opentype != undefined && opentype == 0)) {
         init_panel();// 不是聊天响应那边来的就做init_panel
     }
@@ -832,28 +831,15 @@ function historyrecord(obid, type) {
 // 对话框的上半部分title信息显示(你能点到，说明你就能拿到这个人的信息)
 // diotype 是否创建列的对话标识，有这个标识的列不会触发添加对话方法。1-标识为对话列，会为其添加标识信息 0-会话标识为普通列
 function showDioTitle(type, obid, diotype) {
-    var name = "";
+    var iii = getUserOrGroup(obid, type);
+    var name = iii.name;
     if (type == 1) {
-        var user = getOnlineUserById(obid);
-        if (user == undefined) {
-            user = getU_GById_Type(type, obid);
-            name = user.name;
-        } else {
-            name = user.nick;
-        }
         var htm = "<span onclick='infos_user(\"" + obid + "\",\"" + name + "\")'>" + name + "</span>";
         if (diotype == 1) {
             htm = "<span onclick='infos_dio(\"" + obid + "\",\"" + name + "\",\"" + type + "\")'>" + name + "</span>";
         }
         $("#gpinfo").html(htm);
     } else {
-        var group = getGroupById(obid);
-        if (group == undefined) {
-            group = getU_GById_Type(type, obid);
-        }
-        if (group != undefined) {
-            name = group.name;
-        }
         var htm = "<span onclick='rename_group(\"" + obid + "\",\"" + name + "\")'>" + name + "</span>";
         if (diotype == 1) {
             htm = "<span onclick='infos_dio(\"" + obid + "\",\"" + name + "\",\"" + type + "\")'>" + name + "</span>";
@@ -911,7 +897,7 @@ function delmyfrienduser_dio(obid, type) {
     $("#" + obid + type).remove();
 }
 
-// // 记录当前用户的点击的显示信息
+// 记录当前用户的点击的显示信息
 function showInfoRecord(type, obid) {
     showtype = type;
     if (type == 2) {
@@ -944,9 +930,13 @@ function sendMsg(type, obid) {
 }
 
 // 滚动到元素最下面
-function scrollToBottom() {
+function scrollToBottom(height) {
     if ($('.info-show-box:visible') != undefined && $('.info-show-box:visible').length > 0) {
-        $('.info-show-box:visible').scrollTop($('.info-show-box:visible')[0].scrollHeight);
+        if (height != undefined) {
+            $('.info-show-box:visible').scrollTop(height);
+        } else {
+            $('.info-show-box:visible').scrollTop($('.info-show-box:visible')[0].scrollHeight);
+        }
     }
 }
 
@@ -962,44 +952,22 @@ function keyDown(e, id, type) {
     }
 }
 
-// 心跳
-// function heartbeatCmd() {
-//     if (!curUser) {
-//         alert("demo中模拟命令需要先登录，请先登录!");
-//     }
-//     var heartbeatCmd = "{\"cmd\":13,\"hbbyte\":\"-127\"}";
-//     socket.send(heartbeatCmd);
-// }
+$(function () {
+    heartbeatCmd();
+})
 
-// function friendHistoryCmd() {
-//     if (!curUser) {
-//         alert("请先登录!");
-//         return;
-//     }
-//     var friend_id = document.getElementById("history_friend_id").value;
-//     ;
-//     if (friend_id == "") {
-//         alert("请输入要获取的好友ID!");
-//         return;
-//     }
-//     var msgHistoryCmd = "{\"cmd\":19,\"type\":\"1\",\"fromUserId\":\"" + friend_id + "\",\"userid\":\"" + userId + "\"}";
-//     socket.send(msgHistoryCmd);//获取用户历史消息;
-// }
-//
-// function groupHistoryCmd() {
-//     if (!curUser) {
-//         alert("请先登录!");
-//         return;
-//     }
-//     var group_id = document.getElementById("history_group_id").value;
-//     ;
-//     if (group_id == "") {
-//         alert("请输入要获取的群组ID!");
-//         return;
-//     }
-//     var msgHistoryCmd = "{\"cmd\":19,\"type\":\"1\",\"groupId\":\"" + group_id + "\",\"userid\":\"" + userId + "\"}";
-//     socket.send(msgHistoryCmd);//获取群组历史消息;
-// }
+// 心跳
+function heartbeatCmd() {
+    setInterval(function () {
+        if (!curUser) {
+            // alert("demo中模拟命令需要先登录，请先登录!");
+            return false;
+        }
+        var heartbeatCmd = "{\"cmd\":13,\"hbbyte\":\"-127\"}";
+        socket.send(heartbeatCmd);
+    }, 300 * 1000);
+}
+
 
 function initEmoji(type, obid) {
     $("#edit-box-" + obid + type).emoji({
