@@ -112,5 +112,4 @@ public class ImConst {
     public static final Integer COMMAND_RECORD_RESP_VAL = 44;
     // 获取聊天记录
     public static final Integer COMMAND_RECORD_RESP_CODE = 20011;
-
 }
