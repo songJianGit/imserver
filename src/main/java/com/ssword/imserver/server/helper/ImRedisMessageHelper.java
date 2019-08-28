@@ -25,20 +25,21 @@ import java.util.*;
  * 本类主要都是复制的RedisMessageHelper，主要是为了在依赖redis的同时，使部分接口依赖mysql
  */
 public class ImRedisMessageHelper extends AbstractMessageHelper {
-    private RedisCache groupCache = null;
-    private RedisCache pushCache = null;
-    private RedisCache storeCache = null;
-    private RedisCache userCache = null;
+    private RedisCache groupCache = null;// 群组信息
+    private RedisCache pushCache = null; // 离线消息
+    private RedisCache storeCache = null;// 聊天记录
+    private RedisCache userCache = null; // 用户信息
 
     public static final String SUBFIX = ":";
+    public static final Integer OUTTIME = 86400;// 缓存最大时间 24小时
     private Logger log = LoggerFactory.getLogger(ImRedisMessageHelper.class);
     private UserInfoService userInfoService = SpringUtil.getBean(UserInfoService.class);
 
     static {
-        RedisCacheManager.register(USER, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        RedisCacheManager.register(GROUP, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        RedisCacheManager.register(STORE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        RedisCacheManager.register(PUSH, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        RedisCacheManager.register(USER, OUTTIME, OUTTIME);
+        RedisCacheManager.register(GROUP, OUTTIME, OUTTIME);
+        RedisCacheManager.register(STORE, OUTTIME, OUTTIME);
+        RedisCacheManager.register(PUSH, OUTTIME, OUTTIME);
     }
 
     public ImRedisMessageHelper() {

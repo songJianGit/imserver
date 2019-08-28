@@ -83,20 +83,27 @@ function connect() {
             COMMAND_DEL_GROUP_RESP(dataObj, data);
         } else if (dataObj.command == 30 && dataObj.code == 20004) {// 群组改名响应
             RELOAD_USER(dataObj, data);
-        } else if (dataObj.command == 36) {
+        } else if (dataObj.command == 36) {// 刷新用户页面响应
             RELOAD_USER(dataObj, data);
-        } else if (dataObj.command == 38) {
+        } else if (dataObj.command == 38) {// 刷新用户好友和群组信息响应
             RELOAD_USER(dataObj, data);
-        } else if (dataObj.command == 40) {
+        } else if (dataObj.command == 40) {// 删除好友信息响应
             RELOAD_USER(dataObj, data);
-        } else if (dataObj.command == 42) {
+        } else if (dataObj.command == 42) {// 删除对话信息响应
             RELOAD_USER(dataObj, data);
-        } else if (dataObj.command == 44) {
+        } else if (dataObj.command == 44) {// 获取聊天记录
             COMMAND_RECORD_RESP(dataObj, data);
+        } else if (dataObj.command == 46) {// 获取聊天对象最新信息
+            COMMAND_GETINFO_RESP(dataObj, data);
         } else {
             OTHER(data);
         }
     };
+}
+
+function COMMAND_GETINFO_RESP(dataObj, data) {
+    dataObj = dataObj.data;
+    putCurUserGroupOrFriend(dataObj, 4);
 }
 
 // 获取聊天记录响应
@@ -130,10 +137,9 @@ function COMMAND_DEL_GROUP_RESP(dataObj, data) {
 /**
  *
  * @param obj
- * @param type 1-好友 2-群组 3-对话
+ * @param type 1-好友 2-群组 3-对话 4-最新信息
  */
 function putCurUserGroupOrFriend(obj, type) {
-    var bb = true;
     var id = "";
     var name = "";
     var avatar = "";
@@ -141,7 +147,7 @@ function putCurUserGroupOrFriend(obj, type) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
             if (item.id == obj.id && item.type == type) {
-                bb = false;
+                curUserGroupOrFriend.splice(i, 1);
             }
         }
         id = obj.id;
@@ -151,7 +157,7 @@ function putCurUserGroupOrFriend(obj, type) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
             if (item.id == obj.group_id && item.type == type) {
-                bb = false;
+                curUserGroupOrFriend.splice(i, 1);
             }
         }
         id = obj.group_id;
@@ -161,22 +167,30 @@ function putCurUserGroupOrFriend(obj, type) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
             if (item.id == obj.objectid && item.type == type) {
-                bb = false;
+                curUserGroupOrFriend.splice(i, 1);
             }
         }
         id = obj.objectid;
         name = obj.name;
         avatar = obj.avatar;
+    } else if (type == 4) {
+        for (var i = 0; i < curUserGroupOrFriend.length; i++) {
+            var item = curUserGroupOrFriend[i];
+            if (item.id == obj.id && item.type == type) {
+                curUserGroupOrFriend.splice(i, 1);
+            }
+        }
+        id = obj.id;
+        name = obj.name;
+        avatar = obj.avatar;
     }
-    if (bb) {
-        var iii = {
-            "id": id,
-            "name": name,
-            "type": type,
-            "avatar": avatar
-        };
-        curUserGroupOrFriend.push(iii);
-    }
+    var iii = {
+        "id": id,
+        "name": name,
+        "type": type,
+        "avatar": avatar
+    };
+    curUserGroupOrFriend.push(iii);
     return curUserGroupOrFriend;
 }
 
@@ -750,7 +764,8 @@ function init_panel() {
 
 // 打开会话窗口(没有则新建)  type 1-用户  2-群组
 function openDiologue(type, obid, diotype, opentype) {
-    // todo 每次open聊天框时，发起一个请求，获取本对象的最新 名字和头像
+    var getinfo = "{\"userid\": \"" + userId + "\",\"cmd\":45,\"obid\": \"" + obid + "\",\"type\":" + type + "}";
+    socket.send(getinfo);// 获取本两天对象的最新头像和最新名称
 
     if (!(opentype != undefined && opentype == 0)) {
         init_panel();// 不是聊天响应那边来的就做init_panel

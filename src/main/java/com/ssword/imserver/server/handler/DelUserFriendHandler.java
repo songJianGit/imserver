@@ -34,13 +34,13 @@ public class DelUserFriendHandler extends AbstractCmdHandler {
 
     @Override
     public ImPacket handler(ImPacket packet, ChannelContext channelContext) throws Exception {
-        List<UserServiceProcessor> dialogueProcessors = this.getProcessor(channelContext, UserServiceProcessor.class);
-        if (CollectionUtils.isEmpty(dialogueProcessors)) {
+        List<UserServiceProcessor> userServiceProcessors = this.getProcessor(channelContext, UserServiceProcessor.class);
+        if (CollectionUtils.isEmpty(userServiceProcessors)) {
             log.info("好友删除业务失败,没有好友删除处理器!");
             Aio.remove(channelContext, "no UserServiceProcessor processor!");
             return null;
         }
-        UserServiceProcessor userServiceProcessor = dialogueProcessors.get(0);
+        UserServiceProcessor userServiceProcessor = userServiceProcessors.get(0);
         Integer count = userServiceProcessor.delUserFirend(packet, channelContext);
         Command command = Command.valueOf(ImConst.COMMAND_DELLUSER_FRIEND_RESP_VAL);
         RespBody respBody = new RespBody(command, count);

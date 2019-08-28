@@ -68,6 +68,8 @@ public class ImserverApplication {
         Command.addAndGet(ImConst.COMMAND_DELLDIO_RESP, ImConst.COMMAND_DELLDIO_RESP_VAL);
         Command.addAndGet(ImConst.COMMAND_RECORD_REQ, ImConst.COMMAND_RECORD_REQ_VAL);
         Command.addAndGet(ImConst.COMMAND_RECORD_RESP, ImConst.COMMAND_RECORD_RESP_VAL);
+        Command.addAndGet(ImConst.COMMAND_GETINFO_REQ, ImConst.COMMAND_GETINFO_REQ_VAL);
+        Command.addAndGet(ImConst.COMMAND_GETINFO_RESP, ImConst.COMMAND_GETINFO_RESP_VAL);
         try {
             CommandManager.registerCommand(new DialogueHandler());// 注册 会话获取
             CommandManager.registerCommand(new NewDialogueHandler());// 注册 会话新建
@@ -80,6 +82,7 @@ public class ImserverApplication {
             CommandManager.registerCommand(new DelUserFriendHandler());// 注册 用户删除对话
             CommandManager.registerCommand(new DelUserDioHandler());// 注册 用户删除对话
             CommandManager.registerCommand(new ListRecordHandler());// 注册 获取聊天记录
+            CommandManager.registerCommand(new GetInfoHandler());// 注册 获取最新信息
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,6 +110,8 @@ public class ImserverApplication {
         newDialogueHandler.addProcessor(new DialogueServiceProcessor());
         DelUserDioHandler delUserDioHandler = CommandManager.getCommand(Command.valueOf(ImConst.COMMAND_DELLDIO_REQ), DelUserDioHandler.class);
         delUserDioHandler.addProcessor(new DialogueServiceProcessor());
+        GetInfoHandler getInfoHandler = CommandManager.getCommand(Command.valueOf(ImConst.COMMAND_GETINFO_REQ), GetInfoHandler.class);
+        getInfoHandler.addProcessor(new DialogueServiceProcessor());
         // 添加群组处理器
         NewGroupHandler newGroupHandler = CommandManager.getCommand(Command.valueOf(ImConst.COMMAND_NEW_GROUP_REQ), NewGroupHandler.class);
         newGroupHandler.addProcessor(new GroupServiceProcessor());

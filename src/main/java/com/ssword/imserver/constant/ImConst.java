@@ -112,4 +112,11 @@ public class ImConst {
     public static final Integer COMMAND_RECORD_RESP_VAL = 44;
     // 获取聊天记录
     public static final Integer COMMAND_RECORD_RESP_CODE = 20011;
+
+    // 获取群组或用户信息 主要用作获取群组或用户的最新名称，头像等信息
+    public static final String COMMAND_GETINFO_REQ = "COMMAND_GETINFO_REQ";
+    public static final Integer COMMAND_GETINFO_REQ_VAL = 45;
+    public static final String COMMAND_GETINFO_RESP = "COMMAND_GETINFO_RESP";
+    public static final Integer COMMAND_GETINFO_RESP_VAL = 46;
+    public static final Integer COMMAND_GETINFO_RESP_CODE = 20012;
 }

@@ -33,13 +33,13 @@ public class GroupDelUserHandler extends AbstractCmdHandler {
 
     @Override
     public ImPacket handler(ImPacket packet, ChannelContext channelContext) throws Exception {
-        List<GroupServiceProcessor> dialogueProcessors = this.getProcessor(channelContext, GroupServiceProcessor.class);
-        if (CollectionUtils.isEmpty(dialogueProcessors)) {
+        List<GroupServiceProcessor> groupServiceProcessors = this.getProcessor(channelContext, GroupServiceProcessor.class);
+        if (CollectionUtils.isEmpty(groupServiceProcessors)) {
             log.info("群组业务失败,没有群组业务处理器!");
             Aio.remove(channelContext, "no Group serviceHandler processor!");
             return null;
         }
-        GroupServiceProcessor groupServiceProcessor = dialogueProcessors.get(0);
+        GroupServiceProcessor groupServiceProcessor = groupServiceProcessors.get(0);
         Integer count = groupServiceProcessor.delGroupUser(packet, channelContext);
         Command command = Command.valueOf(ImConst.COMMAND_DELLUSER_GROUP_RESP_VAL);
         RespBody respBody = new RespBody(command, count);

@@ -6,6 +6,7 @@ package com.ssword.imserver.server.command;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.ssword.imserver.entity.Dialogue;
+import com.ssword.imserver.model.InfoVo;
 import com.ssword.imserver.service.UserInfoService;
 import com.ssword.imserver.utils.SpringUtil;
 import org.jim.common.ImPacket;
@@ -74,15 +75,35 @@ public class DialogueServiceProcessor implements CmdProcessor {
         }
         return map;
     }
+
     /**
      * 删除对话
      */
     public Integer delUserDio(ImPacket packet, ChannelContext channelContext) {
         JSONObject json = (JSONObject) JSONObject.parse(((WsRequestPacket) packet).getWsBodyText().getBytes());
         String userid = json.getString("userid");
-        String deluserid = json.getString("delobid");
+        String delobid = json.getString("delobid");
         Integer type = json.getInteger("type");
-        Integer count = userInfoService.delUserDio(userid, deluserid, type);
+        Integer count = userInfoService.delUserDio(userid, delobid, type);
         return count;
+    }
+
+    /**
+     * 获取用户或群组信息
+     */
+    public InfoVo getInfoVo(ImPacket packet, ChannelContext channelContext) {
+        JSONObject json = (JSONObject) JSONObject.parse(((WsRequestPacket) packet).getWsBodyText().getBytes());
+        String userid = json.getString("userid");
+        String obid = json.getString("obid");
+        Integer type = json.getInteger("type");
+        if (type == 1) {
+            User user = userInfoService.getUserById(obid);
+            return new InfoVo(user.getId(), user.getNick(), user.getAvatar());
+        } else if (type == 2) {
+            Group group = userInfoService.getGById(obid);
+            return new InfoVo(group.getId(), group.getName(), group.getAvatar());
+        } else {
+            return null;
+        }
     }
 }
