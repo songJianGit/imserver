@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>个人信息</title>
+    <link rel="stylesheet" th:href="@{/iim/css/personalinformation.css}">
+</head>
+<body>
+<div id="windows-box-pinfo">
+    <div class="main-box">
+        <form id="form1" action="javascript:;" enctype="multipart/form-data" method="post">
+            <input type="hidden" th:value="${user.id}" name="userid"/>
+            <div>
+                头像：<div id="preview"><img th:src="${user.avatar}" width="100px" height="100px"/></div>
+                <input type="file" name="avatarfile" onchange="preview(this)"/>
+            </div>
+            <div>昵称：<input th:value="${user.nick}" name="nick"/></div>
+            <div><button type="button" id="subBtn">保存</button></div>
+        </form>
+    </div>
+</div>
+<script th:inline="javascript" th:src="@{/jQuery-lib/1.12.1/jquery.min.js}"></script>
+<script th:inline="javascript" th:src="@{/layer/layer.js}"></script>
+<script th:inline="javascript">
+    $(function () {
+        subBtn();
+    });
+    // 保存
+    function subBtn() {
+        $("#subBtn").click(function () {
+            var formdata =  new FormData($("#form1")[0]);
+            $.ajax({
+                type : "POST",
+                url : "/upuserinfo.do",
+                cache:false,
+                data : formdata,
+                async: false,
+                contentType: false,
+                processData: false,
+                success : function(data) {
+                    alert(data.msg);
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);//关闭当前页
+                }
+            });
+        });
+    };
+    function preview(file)
+    {
+        var prevDiv = document.getElementById('preview');
+        if (file.files && file.files[0])
+        {
+            var reader = new FileReader();
+            reader.onload = function(evt){
+                prevDiv.innerHTML = '<img width="100px" height="100px" src="' + evt.target.result + '" />';
+            }
+            reader.readAsDataURL(file.files[0]);
+        }
+        else
+        {
+            prevDiv.innerHTML = '<div class="img" width="100px" height="100px" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale, src=\'' + file.value + '\'"></div>';
+        }
+    }
+</script>
+</body>
+</html>

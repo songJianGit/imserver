@@ -30,7 +30,7 @@ public interface UserInfoService {
     /**
      * 修改用户信息
      */
-    User UpUserInfo(String userid);
+    Integer upUserInfo(String userid, String nick, String avatar);
 
     /**
      * 获取用户信息

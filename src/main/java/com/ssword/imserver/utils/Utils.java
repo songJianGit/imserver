@@ -163,7 +163,7 @@ public class Utils {
     }
 
     // 删除用户缓存
-    private static void clearUserById(String userid) {
+    private static void clearUserTokenById(String userid) {
         if (StringUtils.isNotBlank(userid)) {
             RedisCache tokenMap = RedisCacheManager.getCache(TOKENMAPKEY);
             String token = tokenMap.get(ImConst.USER_TOKEN_INFO + userid, String.class);
@@ -175,7 +175,7 @@ public class Utils {
 
     // 删除用户缓存
     public static void delUser(User user) {
-        clearUserById(user.getId());
+        clearUserTokenById(user.getId());
         String key = SJ_USER_INFO + user.getId();
         RedisCache userCache = getUserCache();
         userCache.remove(key);
@@ -183,46 +183,12 @@ public class Utils {
 
     // 删除用户缓存
     public static void delUser(String userid) {
-        clearUserById(userid);
+        clearUserTokenById(userid);
         String key = SJ_USER_INFO + userid;
         RedisCache userCache = getUserCache();
         userCache.remove(key);
     }
 
-
-//    // 清除群组中的用户
-//    public static void clearGroupUser(String groupid, String userid) {
-//        String group_user_key = groupid + ImRedisMessageHelper.SUBFIX + USER;
-//        RedisCache groupCache = RedisCacheManager.getCache(GROUP);
-//        groupCache.listRemove(group_user_key, userid);
-//    }
-//
-//    // 添加群组中的用户
-//    public static void addGroupUser(String groupid, String userid) {
-//        String group_user_key = groupid + ImRedisMessageHelper.SUBFIX + USER;
-//        RedisCache groupCache = RedisCacheManager.getCache(GROUP);
-//        List<String> users = groupCache.listGetAll(group_user_key);
-//        if (!users.contains(userid)) {
-//            groupCache.listPushTail(group_user_key, userid);
-//        }
-//    }
-//
-//    // 清除用户的群组信息
-//    public static void clearUserGroup(String groupid, String userid) {
-//        String user_group_key = userid + ImRedisMessageHelper.SUBFIX + GROUP;
-//        RedisCache userCache = RedisCacheManager.getCache(USER);
-//        userCache.listRemove(user_group_key, groupid);
-//    }
-
-//    // 添加用户的群组信息
-//    public static void addUserGroup(String groupid, String userid) {
-//        String user_group_key = userid + ImRedisMessageHelper.SUBFIX + GROUP;
-//        RedisCache userCache = RedisCacheManager.getCache(USER);
-//        List<String> groups = userCache.listGetAll(user_group_key);
-//        if (!groups.contains(groupid)) {
-//            userCache.listPushTail(user_group_key, groupid);
-//        }
-//    }
 
 
     /**
@@ -251,7 +217,7 @@ public class Utils {
         Utils.userAddG(groupid, userid);
         // 刷新用户的好友和群组信息
         CmdUtils.sendUserCommand(userid, Command.valueOf(ImConst.COMMAND_RELOAD_USERGROUP_RESP));
-        clearUserById(userid);
+        clearUserTokenById(userid);
     }
 
     // 当用户退出群组
@@ -266,7 +232,7 @@ public class Utils {
         Utils.userDelG(groupid, userid);
         // 刷新用户的好友和群组信息---这里要刷，因为下面那个就查不到这里删除的用户了，，，，
         CmdUtils.sendUserCommand(userid, Command.valueOf(ImConst.COMMAND_RELOAD_USERGROUP_RESP));
-        clearUserById(userid);
+        clearUserTokenById(userid);
     }
 
     /**

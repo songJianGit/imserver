@@ -103,7 +103,7 @@ function connect() {
 
 function COMMAND_GETINFO_RESP(dataObj, data) {
     dataObj = dataObj.data;
-    putCurUserGroupOrFriend(dataObj, 4);
+    putCurUserGroupOrFriend(dataObj, 4, dataObj.type);
 }
 
 // 获取聊天记录响应
@@ -139,15 +139,18 @@ function COMMAND_DEL_GROUP_RESP(dataObj, data) {
  * @param obj
  * @param type 1-好友 2-群组 3-对话 4-最新信息
  */
-function putCurUserGroupOrFriend(obj, type) {
+function putCurUserGroupOrFriend(obj, type, datatype) {
+    var newcurUserGroupOrFriend = [];
     var id = "";
     var name = "";
     var avatar = "";
     if (type == 1) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
-            if (item.id == obj.id && item.type == type) {
-                curUserGroupOrFriend.splice(i, 1);
+            if (item.id == obj.id && item.type == datatype) {
+                // curUserGroupOrFriend.splice(i, 1);
+            }else {
+                newcurUserGroupOrFriend.push(item);
             }
         }
         id = obj.id;
@@ -156,8 +159,10 @@ function putCurUserGroupOrFriend(obj, type) {
     } else if (type == 2) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
-            if (item.id == obj.group_id && item.type == type) {
-                curUserGroupOrFriend.splice(i, 1);
+            if (item.id == obj.group_id && item.type == datatype) {
+                // curUserGroupOrFriend.splice(i, 1);
+            }else {
+                newcurUserGroupOrFriend.push(item);
             }
         }
         id = obj.group_id;
@@ -166,8 +171,10 @@ function putCurUserGroupOrFriend(obj, type) {
     } else if (type == 3) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
-            if (item.id == obj.objectid && item.type == type) {
-                curUserGroupOrFriend.splice(i, 1);
+            if (item.id == obj.objectid && item.type == datatype) {
+                // curUserGroupOrFriend.splice(i, 1);
+            }else {
+                newcurUserGroupOrFriend.push(item);
             }
         }
         id = obj.objectid;
@@ -176,8 +183,10 @@ function putCurUserGroupOrFriend(obj, type) {
     } else if (type == 4) {
         for (var i = 0; i < curUserGroupOrFriend.length; i++) {
             var item = curUserGroupOrFriend[i];
-            if (item.id == obj.id && item.type == type) {
-                curUserGroupOrFriend.splice(i, 1);
+            if (item.id == obj.id && item.type == datatype) {
+                // curUserGroupOrFriend.splice(i, 1);
+            }else {
+                newcurUserGroupOrFriend.push(item);
             }
         }
         id = obj.id;
@@ -187,17 +196,18 @@ function putCurUserGroupOrFriend(obj, type) {
     var iii = {
         "id": id,
         "name": name,
-        "type": type,
+        "type": datatype,
         "avatar": avatar
     };
-    curUserGroupOrFriend.push(iii);
-    return curUserGroupOrFriend;
+    newcurUserGroupOrFriend.push(iii);
+    curUserGroupOrFriend = newcurUserGroupOrFriend;
+    return newcurUserGroupOrFriend;
 }
 
 // 新建对话响应
 function COMMAND_NEW_DIALOGUE_RESP(dataObj, data) {
     dataObj = dataObj.data;
-    putCurUserGroupOrFriend(dataObj, 3);
+    putCurUserGroupOrFriend(dataObj, 3, dataObj.type);
     // 在客户端的最近联系界面添加对话信息
     if (dataObj.type == 1) {
         var htm = cOneP(dataObj.objectid, dataObj.name, dataObj.avatar, dataObj.type, 1);
@@ -356,11 +366,11 @@ function putCurUserGroupOrFriendByCurUser(curUser) {
     if (groups != undefined) {
         for (var g = 0; g < groups.length; g++) {
             var group = groups[g];
-            putCurUserGroupOrFriend(group, 2);
+            putCurUserGroupOrFriend(group, 2,2);
             var users = group.users;
             for (var u = 0; u < users.length; u++) {
                 var user = users[u];
-                putCurUserGroupOrFriend(user, 1);
+                putCurUserGroupOrFriend(user, 1,1);
             }
         }
     }
@@ -371,7 +381,7 @@ function putCurUserGroupOrFriendByCurUser(curUser) {
             var users = group.users;
             for (var u = 0; u < users.length; u++) {
                 var user = users[u];
-                putCurUserGroupOrFriend(user, 1);
+                putCurUserGroupOrFriend(user, 1,1);
             }
         }
     }
@@ -971,6 +981,14 @@ $(function () {
     heartbeatCmd();
 })
 
+// 点击名称时，显示个人信息
+function personalInformation() {
+    layer.open({
+        type: 2,
+        area: ['300px', '300px'],
+        content: '/personalinformation.do?userid=' + userId + '&username=' + userName
+    });
+}
 // 心跳
 function heartbeatCmd() {
     setInterval(function () {

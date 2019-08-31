@@ -6,13 +6,18 @@ import com.ssword.imserver.entity.UserIIM;
 import com.ssword.imserver.model.AjaxResult;
 import com.ssword.imserver.service.UserInfoService;
 import com.ssword.imserver.utils.CmdUtils;
+import com.ssword.imserver.utils.UpLoadUtils;
+import com.ssword.imserver.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
+import org.jim.common.packets.User;
 import org.jim.server.http.api.HttpApiController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -106,6 +111,31 @@ public class UserController extends HttpApiController {
         } else {
             userInfoService.saveFriendRequestYES(id);
         }
+        return AjaxResult.OK();
+    }
+
+    /**
+     * 个人信息
+     */
+    @RequestMapping("personalinformation.do")
+    public String personalinformation(String userid, Model model) {
+        User user = userInfoService.getUserById(userid);
+        model.addAttribute("user", user);
+        return "personalinformation";
+    }
+
+    /**
+     * 个人信息保存
+     */
+    @RequestMapping("upuserinfo.do")
+    @ResponseBody
+    public AjaxResult upuserinfo(@RequestParam("avatarfile") MultipartFile file, String userid, String nick) {
+        String path = "";
+        if (!file.isEmpty()) {
+            path = UpLoadUtils.upload(file, "/avatarfile/");
+        }
+        userInfoService.upUserInfo(userid, nick, path);
+        Utils.delUser(userid);
         return AjaxResult.OK();
     }
 }

@@ -130,8 +130,11 @@ public class UserInfoServiceImpl implements UserInfoService {
      * 修改用户信息
      */
     @Override
-    public User UpUserInfo(String userid) {
-        return null;
+    public Integer upUserInfo(String userid, String nick, String avatar) {
+        if (StringUtils.isBlank(avatar)) {
+            avatar = getUserById(userid).getAvatar();
+        }
+        return jdbcTemplate.update("UPDATE t_iim_userinfo SET name=?,avatar=? WHERE id=?", nick, avatar, userid);
     }
 
     @Override

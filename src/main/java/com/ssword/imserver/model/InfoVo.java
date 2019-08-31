@@ -7,11 +7,13 @@ public class InfoVo implements Serializable {
     private String id;
     private String name;
     private String avatar;
+    private Integer type;// 1-好友 2-群组
 
-    public InfoVo(String id, String name, String avatar) {
+    public InfoVo(String id, String name, String avatar, Integer type) {
         this.id = id;
         this.name = name;
         this.avatar = avatar;
+        this.type = type;
     }
 
     public String getId() {
@@ -36,5 +38,13 @@ public class InfoVo implements Serializable {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

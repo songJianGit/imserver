@@ -98,10 +98,10 @@ public class DialogueServiceProcessor implements CmdProcessor {
         Integer type = json.getInteger("type");
         if (type == 1) {
             User user = userInfoService.getUserById(obid);
-            return new InfoVo(user.getId(), user.getNick(), user.getAvatar());
+            return new InfoVo(user.getId(), user.getNick(), user.getAvatar(), type);
         } else if (type == 2) {
             Group group = userInfoService.getGById(obid);
-            return new InfoVo(group.getId(), group.getName(), group.getAvatar());
+            return new InfoVo(group.getId(), group.getName(), group.getAvatar(), type);
         } else {
             return null;
         }
