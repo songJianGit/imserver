@@ -12,8 +12,8 @@ import org.jim.common.packets.RespBody;
 import org.jim.server.command.AbstractCmdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.core.Tio;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class UpGroupNameHandler extends AbstractCmdHandler {
         List<GroupServiceProcessor> groupServiceProcessors = this.getProcessor(channelContext, GroupServiceProcessor.class);
         if (CollectionUtils.isEmpty(groupServiceProcessors)) {
             log.info("群组业务失败,没有群组业务处理器!");
-            Aio.remove(channelContext, "no Group serviceHandler processor!");
+            Tio.remove(channelContext, "no Group serviceHandler processor!");
             return null;
         }
         GroupServiceProcessor groupServiceProcessor = groupServiceProcessors.get(0);

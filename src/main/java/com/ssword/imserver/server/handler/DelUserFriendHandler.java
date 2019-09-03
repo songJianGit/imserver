@@ -13,8 +13,8 @@ import org.jim.common.packets.RespBody;
 import org.jim.server.command.AbstractCmdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.core.Tio;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class DelUserFriendHandler extends AbstractCmdHandler {
         List<UserServiceProcessor> userServiceProcessors = this.getProcessor(channelContext, UserServiceProcessor.class);
         if (CollectionUtils.isEmpty(userServiceProcessors)) {
             log.info("好友删除业务失败,没有好友删除处理器!");
-            Aio.remove(channelContext, "no UserServiceProcessor processor!");
+            Tio.remove(channelContext, "no UserServiceProcessor processor!");
             return null;
         }
         UserServiceProcessor userServiceProcessor = userServiceProcessors.get(0);

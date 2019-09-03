@@ -12,8 +12,8 @@ import org.jim.common.packets.RespBody;
 import org.jim.server.command.AbstractCmdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.core.Tio;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class NewDialogueHandler extends AbstractCmdHandler {
         List<DialogueServiceProcessor> dialogueProcessors = this.getProcessor(channelContext, DialogueServiceProcessor.class);
         if (CollectionUtils.isEmpty(dialogueProcessors)) {
             log.info("新建对话失败,没有新建对话业务处理器!");
-            Aio.remove(channelContext, "no NewDialogue serviceHandler processor!");
+            Tio.remove(channelContext, "no NewDialogue serviceHandler processor!");
             return null;
         }
         DialogueServiceProcessor loginServiceHandler = dialogueProcessors.get(0);
